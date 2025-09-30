@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import { 
   AirVent, 
   ArrowRight, 
@@ -43,6 +45,118 @@ import {
 export default function Home() {
   const [currentUserType, setCurrentUserType] = useState<string | null>(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [serviceBookingData, setServiceBookingData] = useState({
+    serviceType: "",
+    location: "",
+    description: ""
+  });
+  const [chatMessage, setChatMessage] = useState("");
+  const [chatMessages, setChatMessages] = useState([
+    { sender: "agent", text: "Hello! Welcome to Supremo AC Services. How can I assist you today?", time: "Just now" }
+  ]);
+
+  // Handler for smooth scrolling to sections
+  const handleScrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Handler for service booking
+  const handleBookService = () => {
+    toast.success("Redirecting to booking page...", {
+      description: "Please fill in your service details."
+    });
+    setBookingDialogOpen(true);
+  };
+
+  // Handler for booking form submission
+  const handleBookingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!serviceBookingData.serviceType || !serviceBookingData.location) {
+      toast.error("Missing information", {
+        description: "Please fill in all required fields."
+      });
+      return;
+    }
+    toast.success("Booking request submitted!", {
+      description: "Our team will contact you within 24 hours."
+    });
+    setBookingDialogOpen(false);
+    setServiceBookingData({ serviceType: "", location: "", description: "" });
+  };
+
+  // Handler for shopping actions
+  const handleShopNow = () => {
+    const productsSection = document.getElementById('products');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+      toast.info("Browse our products below");
+    }
+  };
+
+  // Handler for view orders
+  const handleViewOrders = () => {
+    toast.info("Order tracking", {
+      description: "You have 2 active orders. Estimated delivery: 3-5 days."
+    });
+  };
+
+  // Handler for add to cart
+  const handleAddToCart = (productName: string) => {
+    toast.success(`${productName} added to cart!`, {
+      description: "View your cart to proceed to checkout."
+    });
+  };
+
+  // Handler for chat message send
+  const handleSendMessage = () => {
+    if (chatMessage.trim()) {
+      setChatMessages([
+        ...chatMessages,
+        { sender: "user", text: chatMessage, time: "Just now" },
+        { sender: "agent", text: "Thank you for your message. An agent will respond shortly.", time: "Just now" }
+      ]);
+      setChatMessage("");
+      toast.success("Message sent!");
+    }
+  };
+
+  // Handler for technician job update
+  const handleUpdateStatus = () => {
+    toast.success("Job status updated", {
+      description: "Customer has been notified."
+    });
+  };
+
+  // Handler for supplier actions
+  const handleAddProduct = () => {
+    toast.info("Add product", {
+      description: "Product upload form will open here."
+    });
+  };
+
+  const handleManageInventory = () => {
+    toast.info("Inventory management", {
+      description: "Inventory dashboard will open here."
+    });
+  };
+
+  // Handler for admin actions
+  const handleManageUsers = () => {
+    toast.info("User management", {
+      description: "User administration panel will open here."
+    });
+  };
+
+  // Handler for generic learn more
+  const handleLearnMore = (service: string) => {
+    toast.info(`Learn more about ${service}`, {
+      description: "Detailed information will be displayed here."
+    });
+  };
 
   const userTypes = [
     { id: "customer", label: "Customer", icon: User, color: "bg-blue-500" },
@@ -234,10 +348,10 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">Schedule installation, repair, or maintenance</p>
-                  <Button className="w-full">Book Now</Button>
+                  <Button className="w-full" onClick={handleBookService}>Book Now</Button>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -247,10 +361,10 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">Browse AC units and spare parts</p>
-                  <Button className="w-full" variant="outline">Shop Now</Button>
+                  <Button className="w-full" variant="outline" onClick={handleShopNow}>Shop Now</Button>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -260,7 +374,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">Monitor your service requests</p>
-                  <Button className="w-full" variant="outline">View Orders</Button>
+                  <Button className="w-full" variant="outline" onClick={handleViewOrders}>View Orders</Button>
                 </CardContent>
               </Card>
             </div>
@@ -315,7 +429,7 @@ export default function Home() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">Scheduled</Badge>
-                          <Button size="sm">Update Status</Button>
+                          <Button size="sm" onClick={handleUpdateStatus}>Update Status</Button>
                         </div>
                       </div>
                     ))}
@@ -362,13 +476,13 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="flex gap-4">
-                <Button className="flex items-center gap-2">
+                <Button className="flex items-center gap-2" onClick={handleAddProduct}>
                   <Package className="h-4 w-4" />
                   Add Product
                 </Button>
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button variant="outline" className="flex items-center gap-2" onClick={handleManageInventory}>
                   <Cog className="h-4 w-4" />
                   Manage Inventory
                 </Button>
@@ -424,35 +538,35 @@ export default function Home() {
                     <CardTitle>Platform Management</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button className="w-full justify-start">
+                    <Button className="w-full justify-start" onClick={handleManageUsers}>
                       <Users className="h-4 w-4 mr-2" />
                       Manage Users
                     </Button>
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start" variant="outline" onClick={() => toast.info("Review listings", { description: "Product listings dashboard will open here." })}>
                       <Package className="h-4 w-4 mr-2" />
                       Review Listings
                     </Button>
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start" variant="outline" onClick={() => toast.info("System security", { description: "Security settings will open here." })}>
                       <Shield className="h-4 w-4 mr-2" />
                       System Security
                     </Button>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardHeader>
                     <CardTitle>Reports & Analytics</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start" variant="outline" onClick={() => toast.info("Performance report", { description: "Generating performance analytics..." })}>
                       <Monitor className="h-4 w-4 mr-2" />
                       Performance Report
                     </Button>
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start" variant="outline" onClick={() => toast.info("Financial summary", { description: "Loading financial data..." })}>
                       <CreditCard className="h-4 w-4 mr-2" />
                       Financial Summary
                     </Button>
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button className="w-full justify-start" variant="outline" onClick={() => toast.info("Customer satisfaction", { description: "Loading customer feedback data..." })}>
                       <Star className="h-4 w-4 mr-2" />
                       Customer Satisfaction
                     </Button>
@@ -544,8 +658,14 @@ export default function Home() {
             </div>
             <div className="p-4 border-t">
               <div className="flex gap-2">
-                <Input placeholder="Type your message..." className="flex-1" />
-                <Button size="sm">Send</Button>
+                <Input
+                  placeholder="Type your message..."
+                  className="flex-1"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                />
+                <Button size="sm" onClick={handleSendMessage}>Send</Button>
               </div>
             </div>
           </div>
@@ -564,10 +684,10 @@ export default function Home() {
             <span className="text-2xl font-bold">Supremo AC Services</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
-            <a href="#services" className="text-sm hover:text-primary transition-colors">Services</a>
-            <a href="#products" className="text-sm hover:text-primary transition-colors">Products</a>
-            <a href="#training" className="text-sm hover:text-primary transition-colors">Training</a>
-            <a href="#about" className="text-sm hover:text-primary transition-colors">About</a>
+            <button onClick={() => handleScrollToSection('services')} className="text-sm hover:text-primary transition-colors">Services</button>
+            <button onClick={() => handleScrollToSection('products')} className="text-sm hover:text-primary transition-colors">Products</button>
+            <button onClick={() => handleScrollToSection('training')} className="text-sm hover:text-primary transition-colors">Training</button>
+            <button onClick={() => handleScrollToSection('about')} className="text-sm hover:text-primary transition-colors">About</button>
             <Button size="sm" onClick={() => setChatOpen(true)}>
               <MessageCircle className="h-4 w-4 mr-2" />
               Live Chat
@@ -595,11 +715,11 @@ export default function Home() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" className="group">
+            <Button size="lg" className="group" onClick={handleBookService}>
               Get Started Today
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" onClick={() => toast.info("Contact us", { description: "Call us at +233 XXX XXXX for immediate assistance." })}>
               <Phone className="mr-2 h-4 w-4" />
               Call +233 XXX XXXX
             </Button>
@@ -668,7 +788,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full mt-4" variant="outline">
+                  <Button className="w-full mt-4" variant="outline" onClick={() => handleLearnMore(service.title)}>
                     Learn More
                     <ChevronRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -712,11 +832,11 @@ export default function Home() {
                     ))}
                   </ul>
                   <div className="flex gap-2">
-                    <Button className="flex-1">
+                    <Button className="flex-1" onClick={() => handleAddToCart(product.name)}>
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       Add to Cart
                     </Button>
-                    <Button variant="outline" size="icon">
+                    <Button variant="outline" size="icon" onClick={() => toast.info("Product details", { description: `Viewing details for ${product.name}` })}>
                       <Monitor className="h-4 w-4" />
                     </Button>
                   </div>
@@ -724,9 +844,9 @@ export default function Home() {
               </Card>
             ))}
           </div>
-          
+
           <div className="text-center mt-8">
-            <Button size="lg" variant="outline">
+            <Button size="lg" variant="outline" onClick={handleShopNow}>
               View All Products
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -774,13 +894,13 @@ export default function Home() {
                     Job placement assistance
                   </li>
                 </ul>
-                <Button className="w-full">
+                <Button className="w-full" onClick={() => toast.success("Redirecting to training portal", { description: "Access your learning dashboard" })}>
                   <GraduationCap className="h-4 w-4 mr-2" />
                   Start Learning
                 </Button>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -810,7 +930,7 @@ export default function Home() {
                     Industry certification
                   </li>
                 </ul>
-                <Button className="w-full" variant="outline">
+                <Button className="w-full" variant="outline" onClick={handleBookService}>
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule Visit
                 </Button>
@@ -857,11 +977,11 @@ export default function Home() {
                   Get started with our online booking system. Schedule installations, 
                   repairs, or maintenance at your convenience.
                 </p>
-                <div className="space-y-4">
+                <form onSubmit={handleBookingSubmit} className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="service-type">Service Type</Label>
-                      <Select>
+                      <Select value={serviceBookingData.serviceType} onValueChange={(value) => setServiceBookingData({...serviceBookingData, serviceType: value})}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select service" />
                         </SelectTrigger>
@@ -875,18 +995,18 @@ export default function Home() {
                     </div>
                     <div>
                       <Label htmlFor="location">Location</Label>
-                      <Input placeholder="Enter your location" />
+                      <Input placeholder="Enter your location" value={serviceBookingData.location} onChange={(e) => setServiceBookingData({...serviceBookingData, location: e.target.value})} />
                     </div>
                   </div>
                   <div>
                     <Label htmlFor="description">Description</Label>
-                    <Textarea placeholder="Describe your AC issue or requirements" />
+                    <Textarea placeholder="Describe your AC issue or requirements" value={serviceBookingData.description} onChange={(e) => setServiceBookingData({...serviceBookingData, description: e.target.value})} />
                   </div>
-                  <Button className="w-full" size="lg">
+                  <Button type="submit" className="w-full" size="lg">
                     <Calendar className="h-4 w-4 mr-2" />
                     Book Service Now
                   </Button>
-                </div>
+                </form>
               </div>
               <div className="md:w-1/2 bg-gradient-to-br from-primary/10 to-primary/5 p-8 flex items-center justify-center">
                 <div className="text-center">
@@ -924,20 +1044,20 @@ export default function Home() {
             <div>
               <h4 className="font-semibold mb-4">Services</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">AC Installation</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Repairs & Maintenance</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Consultation</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Training Programs</a></li>
+                <li><button onClick={() => handleScrollToSection('services')} className="hover:text-primary transition-colors">AC Installation</button></li>
+                <li><button onClick={() => handleScrollToSection('services')} className="hover:text-primary transition-colors">Repairs & Maintenance</button></li>
+                <li><button onClick={handleBookService} className="hover:text-primary transition-colors">Consultation</button></li>
+                <li><button onClick={() => handleScrollToSection('training')} className="hover:text-primary transition-colors">Training Programs</button></li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-primary transition-colors">Customer Portal</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Technician Dashboard</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Supplier Hub</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Training Portal</a></li>
+                <li><button onClick={() => toast.info("Customer Portal", { description: "Login as a customer to access your portal" })} className="hover:text-primary transition-colors">Customer Portal</button></li>
+                <li><button onClick={() => toast.info("Technician Dashboard", { description: "Login as a technician to access your dashboard" })} className="hover:text-primary transition-colors">Technician Dashboard</button></li>
+                <li><button onClick={() => toast.info("Supplier Hub", { description: "Login as a supplier to access your hub" })} className="hover:text-primary transition-colors">Supplier Hub</button></li>
+                <li><button onClick={() => toast.info("Training Portal", { description: "Login as a trainee to access courses" })} className="hover:text-primary transition-colors">Training Portal</button></li>
               </ul>
             </div>
             
@@ -1012,8 +1132,14 @@ export default function Home() {
           </div>
           <div className="p-4 border-t">
             <div className="flex gap-2">
-              <Input placeholder="Type your message..." className="flex-1" />
-              <Button size="sm">
+              <Input
+                placeholder="Type your message..."
+                className="flex-1"
+                value={chatMessage}
+                onChange={(e) => setChatMessage(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              />
+              <Button size="sm" onClick={handleSendMessage}>
                 Send
               </Button>
             </div>
@@ -1023,6 +1149,7 @@ export default function Home() {
           </div>
         </div>
       )}
+      <Toaster />
     </div>
   );
 }

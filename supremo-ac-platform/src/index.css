@@ -130,4 +130,39 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Mobile touch optimization */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Ensure minimum touch target size (44x44px for accessibility) */
+  button:not([class*="size-icon"]),
+  a[role="button"],
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Smooth scrolling for anchor links */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Improve form input touch targets on mobile */
+  input,
+  textarea,
+  select {
+    touch-action: manipulation;
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+  }
+
+  /* Better tap feedback for interactive elements */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+    transition: opacity 0.1s, transform 0.1s;
+  }
 }
